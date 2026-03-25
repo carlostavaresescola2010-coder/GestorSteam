@@ -1,0 +1,2 @@
+# GestorSteam
+Gestor de Steam
