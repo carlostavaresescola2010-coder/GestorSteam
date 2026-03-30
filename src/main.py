@@ -1,7 +1,7 @@
 # ==============================
-# main.py
+#           MAIN
 # menu terminal para testar CRUD
-# ponto de entrada do programa
+# verifica os codigos de retorno
 # ==============================
 import os
 from utilizadores import (
@@ -30,7 +30,6 @@ def cabecalho():
     print("=" * 45)
 
 # mostra uma tabela com o total de utilizadores e jogos registados
-# importa diretamente os dicionarios para contar os elementos
 def tabela_resumo():
     from utilizadores import utilizadores
     from jogos import jogos
@@ -92,28 +91,41 @@ def main():
                 print()
 
                 if op == "1":
-                    # recolhe os dados do novo utilizador
-                    # as validacoes de email e data sao feitas dentro de criar_utilizador()
+                    # recolhe os dados — validacoes feitas dentro de criar_utilizador()
                     nome       = input("  Nome: ")
                     username   = input("  Username: ")
                     email      = input("  Email: ")
                     password   = input("  Password: ")
                     nascimento = input("  Data de nascimento (DD/MM/AAAA): ")
                     print()
-                    criar_utilizador(nome, username, email, password, nascimento)
+                    return_code = criar_utilizador(nome, username, email, password, nascimento)
+                    if return_code[0] == 201:
+                        print(f"  [{return_code[0]}] Utilizador criado com sucesso. ID: {return_code[1]}")
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "2":
                     print()
-                    listar_utilizadores()
+                    return_code = listar_utilizadores()
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 404:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "3":
                     # o ID e validado dentro de consultar_utilizador()
                     uid = input("  ID do utilizador: ")
                     print()
-                    consultar_utilizador(uid)
+                    return_code = consultar_utilizador(uid)
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "4":
-                    # campos opcionais - enter para manter o valor atual
+                    # campos opcionais — enter para manter o valor atual
                     # o ID e validado dentro de atualizar_utilizador()
                     uid        = input("  ID do utilizador: ")
                     nome       = input("  Novo nome (enter para manter): ")
@@ -123,7 +135,7 @@ def main():
                     nascimento = input("  Nova data DD/MM/AAAA (enter para manter): ")
                     print()
                     # passa None nos campos que ficaram em branco
-                    atualizar_utilizador(
+                    return_code = atualizar_utilizador(
                         uid,
                         nome       if nome       else None,
                         username   if username   else None,
@@ -131,12 +143,20 @@ def main():
                         password   if password   else None,
                         nascimento if nascimento else None
                     )
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "5":
                     # o ID e validado dentro de remover_utilizador()
                     uid = input("  ID do utilizador: ")
                     print()
-                    remover_utilizador(uid)
+                    return_code = remover_utilizador(uid)
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "0":
                     break
@@ -154,27 +174,40 @@ def main():
                 print()
 
                 if op == "1":
-                    # recolhe os dados do novo jogo
-                    # as validacoes de modo, idade e tamanho sao feitas dentro de criar_jogo()
+                    # recolhe os dados — validacoes feitas dentro de criar_jogo()
                     nome         = input("  Nome do jogo: ")
                     modo         = input("  Modo (single player / multiplayer / ambos): ")
                     idade_minima = input("  Idade minima: ")
                     tamanho_gb   = input("  Tamanho (GB): ")
                     print()
-                    criar_jogo(nome, modo, idade_minima, tamanho_gb)
+                    return_code = criar_jogo(nome, modo, idade_minima, tamanho_gb)
+                    if return_code[0] == 201:
+                        print(f"  [{return_code[0]}] Jogo criado com sucesso. ID: {return_code[1]}")
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "2":
                     print()
-                    listar_jogos()
+                    return_code = listar_jogos()
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 404:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "3":
                     # o ID e validado dentro de consultar_jogo()
                     jid = input("  ID do jogo: ")
                     print()
-                    consultar_jogo(jid)
+                    return_code = consultar_jogo(jid)
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "4":
-                    # campos opcionais - enter para manter o valor atual
+                    # campos opcionais — enter para manter o valor atual
                     # o ID e validado dentro de atualizar_jogo()
                     jid          = input("  ID do jogo: ")
                     nome         = input("  Novo nome (enter para manter): ")
@@ -183,19 +216,27 @@ def main():
                     tamanho_gb   = input("  Novo tamanho GB (enter para manter): ")
                     print()
                     # passa None nos campos que ficaram em branco
-                    atualizar_jogo(
+                    return_code = atualizar_jogo(
                         jid,
                         nome         if nome         else None,
                         modo         if modo         else None,
                         idade_minima if idade_minima else None,
                         tamanho_gb   if tamanho_gb   else None
                     )
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "5":
                     # o ID e validado dentro de remover_jogo()
                     jid = input("  ID do jogo: ")
                     print()
-                    remover_jogo(jid)
+                    return_code = remover_jogo(jid)
+                    if return_code[0] == 200:
+                        print(f"  [{return_code[0]}] " + return_code[1])
+                    elif return_code[0] == 500:
+                        print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
 
                 elif op == "0":
                     break
