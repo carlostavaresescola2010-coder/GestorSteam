@@ -29,6 +29,7 @@ Com este projeto os alunos devem aprender a:
 * trabalhar com datas em Python
 * separar lógica de negócio da interface (menu)
 * utilizar códigos de retorno para comunicar o resultado das operações
+* tratar erros com `try/except`
 
 ---
 
@@ -38,8 +39,8 @@ Com este projeto os alunos devem aprender a:
 .
 └── gestor_steam/
      ├── main.py
-     ├── utilizador.py
-     ├── jogo.py
+     ├── utilizadores.py
+     ├── jogos.py
      ├── utils.py
      └── README.md
 ```
@@ -50,62 +51,58 @@ Contém o **menu interativo em terminal**.
 Responsável apenas por:
 
 * apresentar opções ao utilizador
-* recolher dados introduzidos
-* chamar funções dos módulos `utilizador` e `jogo`
+* recolher dados introduzidos — **todos os `input()` ficam aqui**
+* chamar funções dos módulos `utilizadores` e `jogos`
 * verificar os códigos de retorno e mostrar mensagens ao utilizador
+* repetir o pedido de dados em caso de erro (`400` ou `404`)
 
 Não contém validações — essas ficam nos respetivos módulos.
 
 ---
 
-### utilizador.py
+### utilizadores.py
 
-Contém todas as operações CRUD da entidade **Utilizador**:
+Contém todas as operações CRUD da entidade **Utilizador**.
+Não tem nenhum `input()` — só recebe dados, valida e retorna um código.
 
-* criar utilizador
-* listar utilizadores
-* consultar utilizador
-* atualizar utilizador
-* remover utilizador
+Funções disponíveis:
 
-Todas as funções retornam um **código de estado** e uma **mensagem**:
+* `criar_utilizador(nome, username, email, password, nascimento)`
+* `listar_utilizadores()`
+* `consultar_utilizador(uid)`
+* `atualizar_utilizador(uid, nome, username, email, password, nascimento)`
+* `remover_utilizador(uid)`
 
-```python
-return (201, uid)        # criado com sucesso
-return (200, "mensagem") # operacao com sucesso
-return (404, "mensagem") # nao encontrado
-return (500, str(e))     # erro interno
-```
-
-Inclui validações de email, data e geração automática de ID.
 Os utilizadores são guardados num **dicionário em memória**.
 
 ---
 
-### jogo.py
+### jogos.py
 
-Contém todas as operações CRUD da entidade **Jogo**:
+Contém todas as operações CRUD da entidade **Jogo**.
+Não tem nenhum `input()` — só recebe dados, valida e retorna um código.
 
-* criar jogo
-* listar jogos
-* consultar jogo
-* atualizar jogo
-* remover jogo
+Funções disponíveis:
 
-Todas as funções retornam um **código de estado** e uma **mensagem**, igual ao `utilizador.py`.
+* `criar_jogo(nome, modo, idade_minima, tamanho_gb)`
+* `listar_jogos()`
+* `consultar_jogo(jid)`
+* `atualizar_jogo(jid, nome, modo, idade_minima, tamanho_gb)`
+* `remover_jogo(jid)`
 
-Inclui validações de modo, idade mínima e tamanho.
 Os jogos são guardados num **dicionário em memória**.
 
 ---
 
 ### utils.py
 
-Contém funções auxiliares partilhadas por todos os módulos:
+Contém funções auxiliares partilhadas por `utilizadores.py` e `jogos.py`.
+Não é importado pelo `main.py`.
 
-* geração automática de IDs
-* validação de datas no formato `DD/MM/AAAA`
-* validação de email
+* `gerar_id_utilizador()` — gera IDs no formato `U001`, `U002`, ...
+* `gerar_id_jogo()` — gera IDs no formato `J001`, `J002`, ...
+* `validar_data(data)` — valida formato `DD/MM/AAAA` e ano entre 1900 e o ano atual
+* `validar_email(email)` — valida se o email contém `@` e `.`
 
 ---
 
@@ -157,7 +154,7 @@ Tamanho:     50.0 GB
 
 ## 🔁 Códigos de Retorno
 
-Todas as funções de `utilizador.py` e `jogo.py` retornam um tuplo com:
+Todas as funções de `utilizadores.py` e `jogos.py` retornam um tuplo com:
 
 * `return_code[0]` — código numérico do resultado
 * `return_code[1]` — mensagem ou valor (ex: ID gerado)
@@ -166,38 +163,44 @@ Todas as funções de `utilizador.py` e `jogo.py` retornam um tuplo com:
 |---|---|---|
 | `201` | Criado com sucesso | `(201, "U001")` |
 | `200` | Operação com sucesso | `(200, "Utilizador atualizado com sucesso.")` |
-| `404` | Nenhum registo encontrado | `(404, "Nao existem utilizadores registados.")` |
+| `400` | Dados inválidos | `(400, "Email invalido.")` |
+| `404` | Registo não encontrado | `(404, "Utilizador nao encontrado.")` |
 | `500` | Erro interno inesperado | `(500, "mensagem de erro")` |
 
-No `main.py` o resultado é verificado assim:
+No `main.py` o resultado é verificado e mostrado assim:
 
 ```python
-return_code = criar_utilizador(nome, username, email, tipo, data_nascimento)
+return_code = criar_utilizador(nome, username, email, password, nascimento)
 if return_code[0] == 201:
     print(f"  [{return_code[0]}] Utilizador criado com sucesso. ID: {return_code[1]}")
+elif return_code[0] == 400:
+    print(f"  [{return_code[0]}] {return_code[1]}")
 elif return_code[0] == 500:
-    print(f"  [{return_code[0]}] Internal Error: " + return_code[1])
+    print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
 ```
 
 ---
 
 ## ✅ Validações Implementadas
 
-| Campo | Regra |
-|---|---|
-| Email | Obrigatório. Tem de conter `@` e `.` após o `@` |
-| Data de nascimento | Formato `DD/MM/AAAA`. Ano entre 1900 e o ano atual |
-| Modo do jogo | Tem de ser `single player`, `multiplayer` ou `ambos` |
-| Idade mínima | Tem de ser um número inteiro |
-| Tamanho (GB) | Tem de ser um número (pode ter decimais) |
-| ID (consultar/atualizar/remover) | Fica em loop até introduzir um ID existente |
+| Campo | Regra | Código devolvido |
+|---|---|---|
+| Email | Obrigatório. Tem de conter `@` e `.` após o `@` | `400` |
+| Data de nascimento | Formato `DD/MM/AAAA`. Ano entre 1900 e o ano atual | `400` |
+| Modo do jogo | Tem de ser `single player`, `multiplayer` ou `ambos` | `400` |
+| Idade mínima | Tem de ser um número inteiro | `400` |
+| Tamanho (GB) | Tem de ser um número (pode ter decimais) | `400` |
+| ID inexistente | ID não encontrado no dicionário | `404` |
 
 ---
 
 ## 🔁 Comportamento em Caso de Erro
 
-O programa **nunca volta ao menu** quando ocorre um erro de validação.
-Em vez disso, fica em loop e pede novamente o valor até ser válido.
+As entidades **nunca têm `input()`** — apenas retornam o código de erro.
+O `main.py` é responsável por mostrar a mensagem e repetir o pedido de dados:
+
+* `400` ou `404` → o loop repete e pede os dados novamente
+* `500` → mostra o erro e sai do loop
 
 ---
 
