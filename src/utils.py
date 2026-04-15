@@ -1,5 +1,5 @@
 # ==============================
-#           UTILS
+# utils.py
 # funcoes auxiliares partilhadas
 # por todos os outros ficheiros
 # ==============================
@@ -35,6 +35,6 @@ def validar_data(data_texto):
     except ValueError:
         return False
 
-# valida se o email tem formato basico correto (contem @ e .)
+# valida se o email tem formato basico correto (contem @ e . apos o @)
 def validar_email(email):
     return "@" in email and "." in email.split("@")[-1]
