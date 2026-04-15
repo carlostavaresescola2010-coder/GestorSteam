@@ -1,9 +1,9 @@
 # ==============================
-#         JOGO
+# jogo.py
 # CRUD da entidade Jogo
 # armazenamento em dicionario
 # validacoes feitas aqui (nao no main)
-# retorna codigos no estilo HTTP
+# retorna codigos de estado ao estilo HTTP
 # ==============================
 from utils import gerar_id_jogo
 
@@ -18,28 +18,21 @@ jogos = {}
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_jogo(nome, modo, idade_minima, tamanho_gb):
 
-    # valida o modo - loop continua ate ser um dos modos validos
-    while modo.lower() not in MODOS_VALIDOS:
-        print(f"  Modo invalido. Escolha: {', '.join(MODOS_VALIDOS)}")
-        modo = input("  Modo: ")
+    # valida o modo
+    if modo.lower() not in MODOS_VALIDOS:
+        return 400, f"Modo invalido. Escolha: {', '.join(MODOS_VALIDOS)}"
 
     # valida a idade - tem de ser um numero inteiro
-    while True:
-        try:
-            idade_minima = int(idade_minima)
-            break
-        except ValueError:
-            print("  Idade invalida. Introduz um numero inteiro.")
-            idade_minima = input("  Idade minima: ")
+    try:
+        idade_minima = int(idade_minima)
+    except ValueError:
+        return 400, "Idade invalida. Introduz um numero inteiro."
 
     # valida o tamanho - tem de ser um numero
-    while True:
-        try:
-            tamanho_gb = float(tamanho_gb)
-            break
-        except ValueError:
-            print("  Tamanho invalido. Introduz um numero.")
-            tamanho_gb = input("  Tamanho (GB): ")
+    try:
+        tamanho_gb = float(tamanho_gb)
+    except ValueError:
+        return 400, "Tamanho invalido. Introduz um numero."
 
     try:
         jid = gerar_id_jogo()
@@ -49,31 +42,27 @@ def criar_jogo(nome, modo, idade_minima, tamanho_gb):
             "idade_minima": idade_minima,
             "tamanho_gb": tamanho_gb
         }
-        # retorna 201 (criado com sucesso) e o ID gerado
-        return 201, jid
+        return (201, jid)
     except Exception as e:
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_jogos():
     if not jogos:
-        # retorna 404 quando nao existem registos
-        return 404, "Não existem jogos registados."
+        return 404, "Nao existem jogos registados."
 
     try:
         for jid, dados in jogos.items():
             print(f"  ID: {jid} | Nome: {dados['nome']} | Modo: {dados['modo']} | Idade min.: {dados['idade_minima']}+ | Tamanho: {dados['tamanho_gb']} GB")
-        # retorna 200 (leitura com sucesso)
         return 200, "Jogos listados com sucesso."
     except Exception as e:
         return 500, str(e)
 
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_jogo(jid):
-    # loop continua ate o utilizador introduzir um ID existente
-    while jid not in jogos:
-        print("  Jogo nao encontrado. Tenta novamente.")
-        jid = input("  ID do jogo: ")
+    # retorna 404 se o ID nao existir
+    if jid not in jogos:
+        return 404, "Jogo nao encontrado."
 
     try:
         dados = jogos[jid]
@@ -82,53 +71,34 @@ def consultar_jogo(jid):
         print(f"    Modo:        {dados['modo']}")
         print(f"    Idade min.:  {dados['idade_minima']}+")
         print(f"    Tamanho:     {dados['tamanho_gb']} GB")
-        # retorna 200 (leitura com sucesso)
-        return 200, "Jogo consultado com sucesso."
+        return (200, "Jogo consultado com sucesso.")
     except Exception as e:
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_jogo(jid, nome=None, modo=None, idade_minima=None, tamanho_gb=None):
-    # loop continua ate o utilizador introduzir um ID existente
-    while jid not in jogos:
-        print("  Jogo nao encontrado. Tenta novamente.")
-        jid = input("  ID do jogo: ")
+    # retorna 404 se o ID nao existir
+    if jid not in jogos:
+        return 404, "Jogo nao encontrado."
 
     try:
         # valida o modo se foi preenchido
-        if modo:
-            while modo.lower() not in MODOS_VALIDOS:
-                print(f"  Modo invalido. Escolha: {', '.join(MODOS_VALIDOS)}")
-                modo = input("  Novo modo (enter para manter): ")
-                if not modo:
-                    modo = None
-                    break
+        if modo and modo.lower() not in MODOS_VALIDOS:
+            return 400, f"Modo invalido. Escolha: {', '.join(MODOS_VALIDOS)}"
 
         # valida a idade se foi preenchida
         if idade_minima:
-            while True:
-                try:
-                    idade_minima = int(idade_minima)
-                    break
-                except ValueError:
-                    print("  Idade invalida. Introduz um numero inteiro.")
-                    idade_minima = input("  Nova idade minima (enter para manter): ")
-                    if not idade_minima:
-                        idade_minima = None
-                        break
+            try:
+                idade_minima = int(idade_minima)
+            except ValueError:
+                return 400, "Idade invalida. Introduz um numero inteiro."
 
         # valida o tamanho se foi preenchido
         if tamanho_gb:
-            while True:
-                try:
-                    tamanho_gb = float(tamanho_gb)
-                    break
-                except ValueError:
-                    print("  Tamanho invalido. Introduz um numero.")
-                    tamanho_gb = input("  Novo tamanho GB (enter para manter): ")
-                    if not tamanho_gb:
-                        tamanho_gb = None
-                        break
+            try:
+                tamanho_gb = float(tamanho_gb)
+            except ValueError:
+                return 400, "Tamanho invalido. Introduz um numero."
 
         # so atualiza os campos que foram preenchidos (nao None)
         if nome:         jogos[jid]["nome"]         = nome
@@ -136,21 +106,18 @@ def atualizar_jogo(jid, nome=None, modo=None, idade_minima=None, tamanho_gb=None
         if idade_minima: jogos[jid]["idade_minima"] = idade_minima
         if tamanho_gb:   jogos[jid]["tamanho_gb"]   = tamanho_gb
 
-        # retorna 200 (atualizado com sucesso)
         return 200, "Jogo atualizado com sucesso."
     except Exception as e:
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_jogo(jid):
-    # loop continua ate o utilizador introduzir um ID existente
-    while jid not in jogos:
-        print("  Jogo nao encontrado. Tenta novamente.")
-        jid = input("  ID do jogo: ")
+    # retorna 404 se o ID nao existir
+    if jid not in jogos:
+        return 404, "Jogo nao encontrado."
 
     try:
         del jogos[jid]
-        # retorna 200 (removido com sucesso)
         return 200, "Jogo removido com sucesso."
     except Exception as e:
         return 500, str(e)
