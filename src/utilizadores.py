@@ -1,9 +1,9 @@
 # ==============================
-#          UTILIZADOR
+# utilizador.py
 # CRUD da entidade Utilizador
 # armazenamento em dicionario
 # validacoes feitas aqui (nao no main)
-# retorna codigo no estilo HTTP
+# retorna codigos de estado ao estilo HTTP
 # ==============================
 from utils import gerar_id_utilizador, validar_data, validar_email
 
@@ -16,14 +16,12 @@ utilizadores = {}
 def criar_utilizador(nome, username, email, password, nascimento):
 
     # valida o email - obrigatorio e tem de ter formato correto
-    while not validar_email(email):
-        print("  Email invalido ou em falta. O email e obrigatorio.")
-        email = input("  Email: ")
+    if not validar_email(email):
+        return 400, "Email invalido. O email e obrigatorio e tem de ter formato correto."
 
     # valida a data - formato DD/MM/AAAA e ano entre 1900 e o ano atual
-    while not validar_data(nascimento):
-        print("  Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual.")
-        nascimento = input("  Data de nascimento (DD/MM/AAAA): ")
+    if not validar_data(nascimento):
+        return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
 
     try:
         uid = gerar_id_utilizador()
@@ -37,7 +35,6 @@ def criar_utilizador(nome, username, email, password, nascimento):
         # retorna 201 (criado com sucesso) e o ID gerado
         return 201, uid
     except Exception as e:
-        # retorna 500 em caso de erro inesperado
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
@@ -56,10 +53,9 @@ def listar_utilizadores():
 
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_utilizador(uid):
-    # loop continua ate o utilizador introduzir um ID existente
-    while uid not in utilizadores:
-        print("  Utilizador nao encontrado. Tenta novamente.")
-        uid = input("  ID do utilizador: ")
+    # retorna 404 se o ID nao existir
+    if uid not in utilizadores:
+        return 404, "Utilizador nao encontrado."
 
     try:
         dados = utilizadores[uid]
@@ -70,36 +66,24 @@ def consultar_utilizador(uid):
         # mostra a password mascarada com asteriscos por seguranca
         print(f"    Password:   {'*' * len(dados['password'])}")
         print(f"    Nascimento: {dados['nascimento']}")
-        # retorna 200 (leitura com sucesso)
         return 200, "Utilizador consultado com sucesso."
     except Exception as e:
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_utilizador(uid, nome=None, username=None, email=None, password=None, nascimento=None):
-    # loop continua ate o utilizador introduzir um ID existente
-    while uid not in utilizadores:
-        print("  Utilizador nao encontrado. Tenta novamente.")
-        uid = input("  ID do utilizador: ")
+    # retorna 404 se o ID nao existir
+    if uid not in utilizadores:
+        return 404, "Utilizador nao encontrado."
 
     try:
         # valida o email se foi preenchido
-        if email:
-            while not validar_email(email):
-                print("  Email invalido.")
-                email = input("  Novo email (enter para manter): ")
-                if not email:
-                    email = None
-                    break
+        if email and not validar_email(email):
+            return 400, "Email invalido."
 
         # valida a data se foi preenchida
-        if nascimento:
-            while not validar_data(nascimento):
-                print("  Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual.")
-                nascimento = input("  Nova data DD/MM/AAAA (enter para manter): ")
-                if not nascimento:
-                    nascimento = None
-                    break
+        if nascimento and not validar_data(nascimento):
+            return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
 
         # so atualiza os campos que foram preenchidos (nao None)
         if nome:       utilizadores[uid]["nome"]       = nome
@@ -108,21 +92,18 @@ def atualizar_utilizador(uid, nome=None, username=None, email=None, password=Non
         if password:   utilizadores[uid]["password"]   = password
         if nascimento: utilizadores[uid]["nascimento"] = nascimento
 
-        # retorna 200 (atualizado com sucesso)
         return 200, "Utilizador atualizado com sucesso."
     except Exception as e:
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_utilizador(uid):
-    # loop continua ate o utilizador introduzir um ID existente
-    while uid not in utilizadores:
-        print("  Utilizador nao encontrado. Tenta novamente.")
-        uid = input("  ID do utilizador: ")
+    # retorna 404 se o ID nao existir
+    if uid not in utilizadores:
+        return 404, "Utilizador nao encontrado."
 
     try:
         del utilizadores[uid]
-        # retorna 200 (removido com sucesso)
         return 200, "Utilizador removido com sucesso."
     except Exception as e:
         return 500, str(e)
