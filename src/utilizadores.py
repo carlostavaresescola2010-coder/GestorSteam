@@ -1,9 +1,5 @@
 # ==============================
-# utilizador.py
-# CRUD da entidade Utilizador
-# armazenamento em dicionario
-# validacoes feitas aqui (nao no main)
-# retorna codigos de estado ao estilo HTTP
+#          UTILIZADOR
 # ==============================
 from utils import gerar_id_utilizador, validar_data, validar_email
 
