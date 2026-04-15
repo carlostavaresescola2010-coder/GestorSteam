@@ -1,10 +1,5 @@
 # ==============================
-# main.py
-# menu terminal para testar CRUD
-# ponto de entrada do programa
-# verifica os codigos de retorno
-# e mostra mensagens ao utilizador
-# os inputs e loops ficam todos aqui
+#           MAIN
 # ==============================
 import os
 from utilizadores import (
