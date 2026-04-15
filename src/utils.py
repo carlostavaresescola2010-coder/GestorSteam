@@ -1,7 +1,5 @@
 # ==============================
-# utils.py
-# funcoes auxiliares partilhadas
-# por todos os outros ficheiros
+#          UTILS
 # ==============================
 from datetime import datetime
 
