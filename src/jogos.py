@@ -62,12 +62,7 @@ def consultar_jogo(jid):
 
     try:
         dados = jogos[jid]
-        print(f"  ID: {jid}")
-        print(f"    Nome:        {dados['nome']}")
-        print(f"    Modo:        {dados['modo']}")
-        print(f"    Idade min.:  {dados['idade_minima']}+")
-        print(f"    Tamanho:     {dados['tamanho_gb']} GB")
-        return (200, "Jogo consultado com sucesso.")
+        return 200, dados
     except Exception as e:
         return 500, str(e)
 
