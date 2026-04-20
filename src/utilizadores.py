@@ -1,5 +1,5 @@
 # ==============================
-#          UTILIZADOR
+#         UTILIZADOR
 # ==============================
 from utils import gerar_id_utilizador, validar_data, validar_email
 
@@ -21,15 +21,17 @@ def criar_utilizador(nome, username, email, password, nascimento):
 
     try:
         uid = gerar_id_utilizador()
-        utilizadores[uid] = {
+        utilizador = {
             "nome": nome,           # nome verdadeiro da pessoa
             "username": username,   # nome de utilizador na plataforma
             "email": email,
             "password": password,
-            "nascimento": nascimento
+            "nascimento": nascimento,
+            "uid": uid
         }
+        utilizadores[uid] = utilizador
         # retorna 201 (criado com sucesso) e o ID gerado
-        return 201, uid
+        return 201, utilizador
     except Exception as e:
         return 500, str(e)
 
@@ -40,10 +42,8 @@ def listar_utilizadores():
         return 404, "Nao existem utilizadores registados."
 
     try:
-        for uid, dados in utilizadores.items():
-            print(f"  ID: {uid} | Nome: {dados['nome']} | Username: {dados['username']} | Email: {dados['email']} | Nascimento: {dados['nascimento']}")
         # retorna 200 (leitura com sucesso)
-        return 200, "Utilizadores listados com sucesso."
+        return 200, utilizadores
     except Exception as e:
         return 500, str(e)
 
@@ -55,14 +55,7 @@ def consultar_utilizador(uid):
 
     try:
         dados = utilizadores[uid]
-        print(f"  ID: {uid}")
-        print(f"    Nome:       {dados['nome']}")
-        print(f"    Username:   {dados['username']}")
-        print(f"    Email:      {dados['email']}")
-        # mostra a password mascarada com asteriscos por seguranca
-        print(f"    Password:   {'*' * len(dados['password'])}")
-        print(f"    Nascimento: {dados['nascimento']}")
-        return 200, "Utilizador consultado com sucesso."
+        return 200, dados
     except Exception as e:
         return 500, str(e)
 
