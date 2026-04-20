@@ -84,39 +84,48 @@ def main():
                         password   = input("  Password: ")
                         nascimento = input("  Data de nascimento (DD/MM/AAAA): ")
                         print()
-                        return_code = criar_utilizador(nome, username, email, password, nascimento)
-                        if return_code[0] == 201:
-                            print(f"  [{return_code[0]}] Utilizador criado com sucesso. ID: {return_code[1]}")
+                        code, obj = criar_utilizador(nome, username, email, password, nascimento)
+                        if code == 201:
+                            print(f"  [{code}] Utilizador criado com sucesso. Nome: {obj["nome"]}")
                             break
-                        elif return_code[0] == 400:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 400:
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+
                             break
 
                 elif op == "2":
                     print()
-                    return_code = listar_utilizadores()
-                    if return_code[0] == 200:
-                        print(f"  [{return_code[0]}] {return_code[1]}")
-                    elif return_code[0] == 404:
-                        print(f"  [{return_code[0]}] {return_code[1]}")
-                    elif return_code[0] == 500:
-                        print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                    code, obj = listar_utilizadores()
+                    if code == 200:
+                        for uid, dados in obj.items():
+                            print(
+                                f"  ID: {uid} | Nome: {dados['nome']} | Username: {dados['username']} | Email: {dados['email']} | Nascimento: {dados['nascimento']}")
+                    elif code == 404:
+                        print(f"  [{code}]  Not Found: {obj}")
+                    elif code == 500:
+                        print(f"  [{code}] Internal Error: {obj}")
 
                 elif op == "3":
                     # loop repete se o ID nao existir (404)
                     while True:
                         uid = input("  ID do utilizador: ")
                         print()
-                        return_code = consultar_utilizador(uid)
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        code, dados = consultar_utilizador(uid)
+                        if code == 200:
+                            print(f"  ID: {uid}")
+                            print(f"    Nome:       {dados['nome']}")
+                            print(f"    Username:   {dados['username']}")
+                            print(f"    Email:      {dados['email']}")
+                            # mostra a password mascarada com asteriscos por seguranca
+                            print(f"    Password:   {'*' * len(dados['password'])}")
+                            print(f"    Nascimento: {dados['nascimento']}")
                             break
-                        elif return_code[0] == 404:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 404:
+                            print(f"  [{code}]  Not Found: {dados}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {dados}")
                             break
 
                 elif op == "4":
@@ -130,7 +139,7 @@ def main():
                         nascimento = input("  Nova data DD/MM/AAAA (enter para manter): ")
                         print()
                         # passa None nos campos que ficaram em branco
-                        return_code = atualizar_utilizador(
+                        code, obj = atualizar_utilizador(
                             uid,
                             nome       if nome       else None,
                             username   if username   else None,
@@ -138,13 +147,13 @@ def main():
                             password   if password   else None,
                             nascimento if nascimento else None
                         )
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
                             break
-                        elif return_code[0] in (400, 404):
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "5":
@@ -152,14 +161,14 @@ def main():
                     while True:
                         uid = input("  ID do utilizador: ")
                         print()
-                        return_code = remover_utilizador(uid)
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        code, obj = remover_utilizador(uid)
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
                             break
-                        elif return_code[0] == 404:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Found: {obj}")
                             break
 
                 elif op == "0":
@@ -185,39 +194,43 @@ def main():
                         idade_minima = input("  Idade minima: ")
                         tamanho_gb   = input("  Tamanho (GB): ")
                         print()
-                        return_code = criar_jogo(nome, modo, idade_minima, tamanho_gb)
-                        if return_code[0] == 201:
-                            print(f"  [{return_code[0]}] Jogo criado com sucesso. ID: {return_code[1]}")
+                        code, obj= criar_jogo(nome, modo, idade_minima, tamanho_gb)
+                        if code == 201:
+                            print(f"  [{code}] {obj}")
                             break
-                        elif return_code[0] == 400:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 400:
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "2":
                     print()
-                    return_code = listar_jogos()
-                    if return_code[0] == 200:
-                        print(f"  [{return_code[0]}] {return_code[1]}")
-                    elif return_code[0] == 404:
-                        print(f"  [{return_code[0]}] {return_code[1]}")
-                    elif return_code[0] == 500:
-                        print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                    code, obj = listar_jogos()
+                    if code == 200:
+                        print(f"  [{code}] {obj}")
+                    elif code == 404:
+                        print(f"  [{code}] Not Found: {code}")
+                    elif code == 500:
+                        print(f"  [{code}] Internal Error: {obj}")
 
                 elif op == "3":
                     # loop repete se o ID nao existir (404)
                     while True:
                         jid = input("  ID do jogo: ")
                         print()
-                        return_code = consultar_jogo(jid)
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        code, obj = consultar_jogo(jid)
+                        if code == 200:
+                            print(f"  ID: {jid}")
+                            print(f"    Nome:        {obj['nome']}")
+                            print(f"    Modo:        {obj['modo']}")
+                            print(f"    Idade min.:  {obj['idade_minima']}+")
+                            print(f"    Tamanho:     {obj['tamanho_gb']} GB")
                             break
-                        elif return_code[0] == 404:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "4":
@@ -230,20 +243,20 @@ def main():
                         tamanho_gb   = input("  Novo tamanho GB (enter para manter): ")
                         print()
                         # passa None nos campos que ficaram em branco
-                        return_code = atualizar_jogo(
+                        code, obj= atualizar_jogo(
                             jid,
                             nome         if nome         else None,
                             modo         if modo         else None,
                             idade_minima if idade_minima else None,
                             tamanho_gb   if tamanho_gb   else None
                         )
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
                             break
-                        elif return_code[0] in (400, 404):
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "5":
@@ -251,14 +264,14 @@ def main():
                     while True:
                         jid = input("  ID do jogo: ")
                         print()
-                        return_code = remover_jogo(jid)
-                        if return_code[0] == 200:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
+                        code, obj = remover_jogo(jid)
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
                             break
-                        elif return_code[0] == 404:
-                            print(f"  [{return_code[0]}] {return_code[1]}")
-                        elif return_code[0] == 500:
-                            print(f"  [{return_code[0]}] Internal Error: {return_code[1]}")
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "0":
