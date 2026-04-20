@@ -38,7 +38,7 @@ def criar_jogo(nome, modo, idade_minima, tamanho_gb):
             "idade_minima": idade_minima,
             "tamanho_gb": tamanho_gb
         }
-        return (201, jid)
+        return 201, jid
     except Exception as e:
         return 500, str(e)
 
