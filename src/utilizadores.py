@@ -1,5 +1,5 @@
 # ==============================
-#         UTILIZADOR
+#         UTILIZADORES
 # ==============================
 from utils import gerar_id_utilizador, validar_data, validar_email
 
@@ -81,7 +81,7 @@ def atualizar_utilizador(uid, nome=None, username=None, email=None, password=Non
         if password:   utilizadores[uid]["password"]   = password
         if nascimento: utilizadores[uid]["nascimento"] = nascimento
 
-        return 200, "Utilizador atualizado com sucesso."
+        return 200, utilizadores[uid]
     except Exception as e:
         return 500, str(e)
 
@@ -93,6 +93,6 @@ def remover_utilizador(uid):
 
     try:
         del utilizadores[uid]
-        return 200, "Utilizador removido com sucesso."
+        return 200, uid
     except Exception as e:
         return 500, str(e)
