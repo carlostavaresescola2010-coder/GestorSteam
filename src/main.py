@@ -22,11 +22,11 @@ from jogos import (
     remover_jogo
 )
 from loja import (
-    criar_loja,
+    criar_item_loja,
     listar_loja,
-    consultar_loja,
-    atualizar_loja,
-    remover_loja
+    consultar_item_loja,
+    atualizar_item_loja,
+    remover_item_loja
 )
 from compra import (
     criar_compra,
@@ -256,7 +256,7 @@ def main():
                     if code == 200:
                         print(f"  [{code}] {obj}")
                     elif code == 404:
-                        print(f"  [{code}] Not Found: {code}")
+                        print(f"  [{code}] Not Found: {obj}")
                     elif code == 500:
                         print(f"  [{code}] Internal Error: {obj}")
 
@@ -338,15 +338,13 @@ def main():
                 if op == "1":
                     # loop repete se houver erro de validacao (400) ou jogo nao encontrado (404)
                     while True:
-                        nome   = input("  Nome da Loja: ")
-                        tipo_jogo = input("  Tipo de Jogo: ")
-                        jogos= listar_jogos()
-                        print(jogos)
-                        lista_ids_jogo = input("  Stock: ")
+                        jid   = input("  ID do jogo: ")
+                        preco = input("  Preco (€): ")
+                        stock = input("  Stock: ")
                         print()
-                        code, obj = criar_loja(nome, tipo_jogo, lista_ids_jogo)
+                        code, obj = criar_item_loja(jid, preco, stock)
                         if code == 201:
-                            print(f"  [{code}] Loja criada com sucesso. ID: {obj}")
+                            print(f"  [{code}] Item adicionado a loja com sucesso. ID: {obj}")
                             break
                         elif code in (400, 404):
                             print(f"  [{code}] {obj}")
@@ -358,27 +356,23 @@ def main():
                     print()
                     code, obj = listar_loja()
                     if code == 200:
-                        jogos = listar_jogos()
-                        for lid, dados in obj.items():
-                            nome_jogo = jogos[dados["jid"]]["nome"] if dados["jid"] in jogos else "Jogo removido"
-                            print(
-                                f"  ID: {lid} | Jogo: {nome_jogo} | Preco: {dados['preco']:.2f}€ | Stock: {dados['stock']}")
                         print(f"  [{code}] {obj}")
                     elif code == 404:
                         print(f"  [{code}] Not Found: {obj}")
                     elif code == 500:
                         print(f"  [{code}] Internal Error: {obj}")
 
-
                 elif op == "3":
                     # loop repete se o ID nao existir (404)
                     while True:
                         lid = input("  ID do item da loja: ")
                         print()
-                        code, obj = consultar_loja(lid)
+                        code, obj = consultar_item_loja(lid)
                         if code == 200:
+                            from jogos import jogos
+                            nome_jogo = jogos[obj["jid"]]["nome"] if obj["jid"] in jogos else "Jogo removido"
                             print(f"  ID: {lid}")
-                            print(f"    Jogo:   {obj['nome_jogo']} ({obj['jid']})")
+                            print(f"    Jogo:   {nome_jogo} ({obj['jid']})")
                             print(f"    Preco:  {obj['preco']:.2f}€")
                             print(f"    Stock:  {obj['stock']}")
                             break
@@ -396,7 +390,7 @@ def main():
                         stock = input("  Novo stock (enter para manter): ")
                         print()
                         # passa None nos campos que ficaram em branco
-                        code, obj = atualizar_loja(
+                        code, obj = atualizar_item_loja(
                             lid,
                             preco if preco else None,
                             stock if stock else None
@@ -415,7 +409,7 @@ def main():
                     while True:
                         lid = input("  ID do item da loja: ")
                         print()
-                        code, obj = remover_loja(lid)
+                        code, obj = remover_item_loja(lid)
                         if code == 200:
                             print(f"  [{code}] {obj}")
                             break
