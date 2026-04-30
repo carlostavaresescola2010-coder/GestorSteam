@@ -1,5 +1,9 @@
 # ==============================
-#           JOGO
+# jogo.py
+# CRUD da entidade Jogo
+# armazenamento em dicionario
+# validacoes feitas aqui (nao no main)
+# retorna codigos de estado ao estilo HTTP
 # ==============================
 from utils import gerar_id_jogo
 
@@ -32,13 +36,14 @@ def criar_jogo(nome, modo, idade_minima, tamanho_gb):
 
     try:
         jid = gerar_id_jogo()
+
         jogos[jid] = {
             "nome": nome,
             "modo": modo.lower(),           # guarda sempre em minusculas
             "idade_minima": idade_minima,
             "tamanho_gb": tamanho_gb
         }
-        return 201, jid
+        return 201, jogos[jid]
     except Exception as e:
         return 500, str(e)
 
@@ -48,9 +53,7 @@ def listar_jogos():
         return 404, "Nao existem jogos registados."
 
     try:
-        for jid, dados in jogos.items():
-            print(f"  ID: {jid} | Nome: {dados['nome']} | Modo: {dados['modo']} | Idade min.: {dados['idade_minima']}+ | Tamanho: {dados['tamanho_gb']} GB")
-        return 200, "Jogos listados com sucesso."
+        return 200, jogos
     except Exception as e:
         return 500, str(e)
 
@@ -97,7 +100,7 @@ def atualizar_jogo(jid, nome=None, modo=None, idade_minima=None, tamanho_gb=None
         if idade_minima: jogos[jid]["idade_minima"] = idade_minima
         if tamanho_gb:   jogos[jid]["tamanho_gb"]   = tamanho_gb
 
-        return 200, "Jogo atualizado com sucesso."
+        return 200, jogos[jid]
     except Exception as e:
         return 500, str(e)
 
@@ -109,6 +112,6 @@ def remover_jogo(jid):
 
     try:
         del jogos[jid]
-        return 200, "Jogo removido com sucesso."
+        return 200, jid
     except Exception as e:
         return 500, str(e)
