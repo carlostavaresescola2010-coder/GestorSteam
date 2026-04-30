@@ -16,25 +16,39 @@ from jogos import jogos
 lojas = {}
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
-def criar_loja(nome, tipo_jogo,  lista_ids_jogos):
+def criar_item_loja(jid, preco, stock):
 
-    for jid in lista_ids_jogos:
-        # valida se o jogo existe
-        if jid not in jogos:
-            return 404, "Jogo " + jid + " nao encontrado."
+    # valida se o jogo existe
+    if jid not in jogos:
+        return 404, "Jogo nao encontrado."
 
     # valida se o jogo ja esta na loja
     for lid, dados in lojas.items():
         if dados["jid"] == jid:
             return 400, f"Este jogo ja esta na loja com o ID {lid}."
 
+    # valida o preco - tem de ser um numero positivo
+    try:
+        preco = float(preco)
+        if preco < 0:
+            return 400, "Preco invalido. O preco nao pode ser negativo."
+    except ValueError:
+        return 400, "Preco invalido. Introduz um numero."
+
+    # valida o stock - tem de ser um numero inteiro nao negativo
+    try:
+        stock = int(stock)
+        if stock < 0:
+            return 400, "Stock invalido. O stock nao pode ser negativo."
+    except ValueError:
+        return 400, "Stock invalido. Introduz um numero inteiro."
 
     try:
         lid = gerar_id_loja()
         lojas[lid] = {
-            "nome": nome,
-            "tipo_jogo": tipo_jogo,
-            "lista_ids_jogos": lista_ids_jogos
+            "jid": jid,
+            "preco": preco,
+            "stock": stock
         }
         return 201, lid
     except Exception as e:
@@ -46,26 +60,26 @@ def listar_loja():
         return 404, "Nao existem itens na loja."
 
     try:
-         return 200, lojas
+        for lid, dados in lojas.items():
+            nome_jogo = jogos[dados["jid"]]["nome"] if dados["jid"] in jogos else "Jogo removido"
+            print(f"  ID: {lid} | Jogo: {nome_jogo} | Preco: {dados['preco']:.2f}€ | Stock: {dados['stock']}")
+        return 200, "Loja listada com sucesso."
     except Exception as e:
         return 500, str(e)
 
 # ── READ - consultar individual ────────────────────────────────────────────────
-def consultar_loja(lid):
+def consultar_item_loja(lid):
     # retorna 404 se o ID nao existir
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
     try:
-        dados = lojas[lid]
-        nome_jogo = jogos[dados["jid"]]["nome"] if dados["jid"] in jogos else "Jogo removido"
-        resultado = {**dados, "nome_jogo": nome_jogo}
-        return 200, resultado
+        return 200, lojas[lid]
     except Exception as e:
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
-def atualizar_loja(lid, preco=None, stock=None, lista_ids_jogos=None):
+def atualizar_item_loja(lid, preco=None, stock=None):
     # retorna 404 se o ID nao existir
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
@@ -98,7 +112,7 @@ def atualizar_loja(lid, preco=None, stock=None, lista_ids_jogos=None):
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
-def remover_loja(lid):
+def remover_item_loja(lid):
     # retorna 404 se o ID nao existir
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
