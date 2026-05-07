@@ -119,6 +119,6 @@ def remover_item_loja(lid):
 
     try:
         del lojas[lid]
-        return 200, lojas[lid]
+        return 200, lid
     except Exception as e:
         return 500, str(e)
