@@ -1,11 +1,15 @@
 # ==============================
-#          UTILS
+# utils.py
+# funcoes auxiliares partilhadas
+# por todos os outros ficheiros
 # ==============================
 from datetime import datetime
 
 # contadores globais para gerar IDs unicos automaticamente
 contador_utilizadores = 1
-contador_jogos = 1
+contador_jogos        = 1
+contador_loja         = 1
+contador_compras      = 1
 
 # gera um ID para utilizador no formato U001, U002, ...
 def gerar_id_utilizador():
@@ -19,6 +23,20 @@ def gerar_id_jogo():
     global contador_jogos
     novo_id = f"J{contador_jogos:03d}"
     contador_jogos += 1
+    return novo_id
+
+# gera um ID para item da loja no formato L001, L002, ...
+def gerar_id_loja():
+    global contador_loja
+    novo_id = f"L{contador_loja:03d}"
+    contador_loja += 1
+    return novo_id
+
+# gera um ID para compra no formato C001, C002, ...
+def gerar_id_compra():
+    global contador_compras
+    novo_id = f"C{contador_compras:03d}"
+    contador_compras += 1
     return novo_id
 
 # valida se a data esta no formato DD/MM/AAAA

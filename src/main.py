@@ -1,5 +1,10 @@
 # ==============================
-#           MAIN
+# main.py
+# menu terminal para testar CRUD
+# ponto de entrada do programa
+# verifica os codigos de retorno
+# e mostra mensagens ao utilizador
+# os inputs e loops ficam todos aqui
 # ==============================
 import os
 from utilizadores import (
@@ -15,6 +20,20 @@ from jogos import (
     consultar_jogo,
     atualizar_jogo,
     remover_jogo
+)
+from loja import (
+    criar_item_loja,
+    listar_loja,
+    consultar_item_loja,
+    atualizar_item_loja,
+    remover_item_loja
+)
+from compra import (
+    criar_compra,
+    listar_compras,
+    consultar_compra,
+    atualizar_compra,
+    remover_compra
 )
 
 # limpa o ecra conforme o sistema operativo (Windows ou Linux/Mac)
@@ -34,6 +53,8 @@ def menu():
     print()
     print("  1. Utilizadores")
     print("  2. Jogos")
+    print("  3. Loja")
+    print("  4. Compras")
     print("  0. Sair")
     print("-" * 45)
 
@@ -63,6 +84,32 @@ def menu_jogos():
     print("  0. Voltar")
     print("-" * 45)
 
+# submenu da loja
+def menu_loja():
+    limpar()
+    cabecalho()
+    print("\n  ── LOJA ──\n")
+    print("  1. Adicionar jogo a loja")
+    print("  2. Listar loja")
+    print("  3. Consultar item da loja")
+    print("  4. Atualizar item da loja")
+    print("  5. Remover item da loja")
+    print("  0. Voltar")
+    print("-" * 45)
+
+# submenu de compras
+def menu_compras():
+    limpar()
+    cabecalho()
+    print("\n  ── COMPRAS ──\n")
+    print("  1. Registar compra")
+    print("  2. Listar compras")
+    print("  3. Consultar compra")
+    print("  4. Atualizar compra")
+    print("  5. Remover compra")
+    print("  0. Voltar")
+    print("-" * 45)
+
 def main():
     while True:
         menu()
@@ -86,13 +133,12 @@ def main():
                         print()
                         code, obj = criar_utilizador(nome, username, email, password, nascimento)
                         if code == 201:
-                            print(f"  [{code}] Utilizador criado com sucesso. Nome: {obj["nome"]}")
+                            print(f"  [{code}] Utilizador criado com sucesso. Nome: {obj['nome']}")
                             break
                         elif code == 400:
                             print(f"  [{code}] {obj}")
                         elif code == 500:
                             print(f"  [{code}] Internal Error: {obj}")
-
                             break
 
                 elif op == "2":
@@ -168,7 +214,7 @@ def main():
                         elif code == 404:
                             print(f"  [{code}] Not Found: {obj}")
                         elif code == 500:
-                            print(f"  [{code}] Internal Found: {obj}")
+                            print(f"  [{code}] Internal Error: {obj}")
                             break
 
                 elif op == "0":
@@ -194,7 +240,7 @@ def main():
                         idade_minima = input("  Idade minima: ")
                         tamanho_gb   = input("  Tamanho (GB): ")
                         print()
-                        code, obj= criar_jogo(nome, modo, idade_minima, tamanho_gb)
+                        code, obj = criar_jogo(nome, modo, idade_minima, tamanho_gb)
                         if code == 201:
                             print(f"  [{code}] {obj}")
                             break
@@ -210,7 +256,7 @@ def main():
                     if code == 200:
                         print(f"  [{code}] {obj}")
                     elif code == 404:
-                        print(f"  [{code}] Not Found: {code}")
+                        print(f"  [{code}] Not Found: {obj}")
                     elif code == 500:
                         print(f"  [{code}] Internal Error: {obj}")
 
@@ -243,7 +289,7 @@ def main():
                         tamanho_gb   = input("  Novo tamanho GB (enter para manter): ")
                         print()
                         # passa None nos campos que ficaram em branco
-                        code, obj= atualizar_jogo(
+                        code, obj = atualizar_jogo(
                             jid,
                             nome         if nome         else None,
                             modo         if modo         else None,
@@ -265,6 +311,202 @@ def main():
                         jid = input("  ID do jogo: ")
                         print()
                         code, obj = remover_jogo(jid)
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
+                            break
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "0":
+                    break
+
+                else:
+                    print("  Opcao invalida.")
+
+                input("\n  Pressiona ENTER para continuar...")
+
+        # ── LOJA ──────────────────────────────────────────────────────────────
+        elif opcao == "3":
+            while True:
+                menu_loja()
+                op = input("  Opcao: ")
+                print()
+
+                if op == "1":
+                    # loop repete se houver erro de validacao (400) ou jogo nao encontrado (404)
+                    while True:
+                        jid   = input("  ID do jogo: ")
+                        preco = input("  Preco (€): ")
+                        stock = input("  Stock: ")
+                        print()
+                        code, obj = criar_item_loja(jid, preco, stock)
+                        if code == 201:
+                            print(f"  [{code}] Item adicionado a loja com sucesso. ID: {obj}")
+                            break
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "2":
+                    print()
+                    code, obj = listar_loja()
+                    if code == 200:
+                        print(f"  [{code}] {obj}")
+                    elif code == 404:
+                        print(f"  [{code}] Not Found: {obj}")
+                    elif code == 500:
+                        print(f"  [{code}] Internal Error: {obj}")
+
+                elif op == "3":
+                    # loop repete se o ID nao existir (404)
+                    while True:
+                        lid = input("  ID do item da loja: ")
+                        print()
+                        code, obj = consultar_item_loja(lid)
+                        if code == 200:
+                            from jogos import jogos
+                            nome_jogo = jogos[obj["jid"]]["nome"] if obj["jid"] in jogos else "Jogo removido"
+                            print(f"  ID: {lid}")
+                            print(f"    Jogo:   {nome_jogo} ({obj['jid']})")
+                            print(f"    Preco:  {obj['preco']:.2f}€")
+                            print(f"    Stock:  {obj['stock']}")
+                            break
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "4":
+                    # loop repete se o ID nao existir (404) ou dados invalidos (400)
+                    while True:
+                        lid   = input("  ID do item da loja: ")
+                        preco = input("  Novo preco (enter para manter): ")
+                        stock = input("  Novo stock (enter para manter): ")
+                        print()
+                        # passa None nos campos que ficaram em branco
+                        code, obj = atualizar_item_loja(
+                            lid,
+                            preco if preco else None,
+                            stock if stock else None
+                        )
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
+                            break
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "5":
+                    # loop repete se o ID nao existir (404)
+                    while True:
+                        lid = input("  ID do item da loja: ")
+                        print()
+                        code, obj = remover_item_loja(lid)
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
+                            break
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "0":
+                    break
+
+                else:
+                    print("  Opcao invalida.")
+
+                input("\n  Pressiona ENTER para continuar...")
+
+        # ── COMPRAS ───────────────────────────────────────────────────────────
+        elif opcao == "4":
+            while True:
+                menu_compras()
+                op = input("  Opcao: ")
+                print()
+
+                if op == "1":
+                    # loop repete se houver erro de validacao (400) ou IDs nao encontrados (404)
+                    while True:
+                        uid         = input("  ID do utilizador: ")
+                        lid         = input("  ID do item da loja: ")
+                        data_compra = input("  Data de compra (DD/MM/AAAA): ")
+                        print()
+                        code, obj = criar_compra(uid, lid, data_compra)
+                        if code == 201:
+                            print(f"  [{code}] Compra registada com sucesso. ID: {obj}")
+                            break
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "2":
+                    print()
+                    code, obj = listar_compras()
+                    if code == 200:
+                        for cid, dados in obj.items():
+                            f"  ID: {cid} | Data: {dados['data_compra']} | Preco pago: {dados['preco_pago']:.2f}€"
+                        print(f"  [{code}] {obj}")
+                    elif code == 404:
+                        print(f"  [{code}] Not Found: {obj}")
+                    elif code == 500:
+                        print(f"  [{code}] Internal Error: {obj}")
+
+                elif op == "3":
+                    # loop repete se o ID nao existir (404)
+                    while True:
+                        cid = input("  ID da compra: ")
+                        print()
+                        code, obj = consultar_compra(cid)
+                        if code == 200:
+                            print(f"  ID: {cid}")
+                            print(f"    Utilizador:  {obj['username']} ({obj['uid']})")
+                            print(f"    Item loja:   {obj['lid']}")
+                            print(f"    Data:        {obj['data_compra']}")
+                            print(f"    Preco pago:  {obj['preco_pago']:.2f}€")
+                            break
+                        elif code == 404:
+                            print(f"  [{code}] Not Found: {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "4":
+                    # so a data e editavel — uid, lid e preco sao imutaveis
+                    while True:
+                        cid         = input("  ID da compra: ")
+                        data_compra = input("  Nova data DD/MM/AAAA (enter para manter): ")
+                        print()
+                        code, obj = atualizar_compra(
+                            cid,
+                            data_compra if data_compra else None
+                        )
+                        if code == 200:
+                            print(f"  [{code}] {obj}")
+                            break
+                        elif code in (400, 404):
+                            print(f"  [{code}] {obj}")
+                        elif code == 500:
+                            print(f"  [{code}] Internal Error: {obj}")
+                            break
+
+                elif op == "5":
+                    # loop repete se o ID nao existir (404)
+                    while True:
+                        cid = input("  ID da compra: ")
+                        print()
+                        code, obj = remover_compra(cid)
                         if code == 200:
                             print(f"  [{code}] {obj}")
                             break
