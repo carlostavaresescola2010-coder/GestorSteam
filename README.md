@@ -1,6 +1,6 @@
 # 🎮 Gestor de Steam
 
-Aplicação de terminal em Python para gerir utilizadores e jogos, com armazenamento em memória e validações ao estilo de uma API HTTP.
+Sistema de gestão de uma plataforma de jogos, desenvolvido em Python. Permite gerir utilizadores, jogos, loja e compras através de um menu interativo no terminal.
 
 ---
 
@@ -11,84 +11,126 @@ Aplicação de terminal em Python para gerir utilizadores e jogos, com armazenam
 ├── main.py           # Ponto de entrada — menus e interação com o utilizador
 ├── utilizadores.py   # CRUD da entidade Utilizador
 ├── jogos.py          # CRUD da entidade Jogo
-└── utils.py          # Funções auxiliares partilhadas (IDs, validações)
+├── loja.py           # CRUD da entidade Loja
+├── compra.py         # CRUD da entidade Compra
+└── utils.py          # Funções auxiliares (IDs, validações)
 ```
 
 ---
 
 ## ▶️ Como Executar
 
+Não é necessária nenhuma dependência externa. Apenas Python 3.x.
+
 ```bash
 python main.py
 ```
 
-Não são necessárias dependências externas — usa apenas a biblioteca padrão do Python.
+---
+
+## 🗂️ Entidades
+
+### 👤 Utilizador
+Representa um utilizador registado na plataforma.
+
+| Campo       | Tipo   | Descrição                        |
+|-------------|--------|----------------------------------|
+| `uid`       | str    | ID gerado automaticamente (U001) |
+| `nome`      | str    | Nome completo                    |
+| `username`  | str    | Nome de utilizador               |
+| `email`     | str    | Endereço de email (validado)     |
+| `password`  | str    | Palavra-passe                    |
+| `nascimento`| str    | Data de nascimento (DD/MM/AAAA)  |
 
 ---
 
-## ✨ Funcionalidades
+### 🎮 Jogo
+Representa um jogo disponível na plataforma.
 
-### Utilizadores
-- **Criar** — regista um novo utilizador com nome, username, email, password e data de nascimento
-- **Listar** — mostra todos os utilizadores registados
-- **Consultar** — apresenta os detalhes de um utilizador pelo ID (password mascarada com `*`)
-- **Atualizar** — edita campos individualmente (campos em branco mantêm o valor atual)
-- **Remover** — elimina um utilizador pelo ID
-
-### Jogos
-- **Criar** — regista um novo jogo com nome, modo, idade mínima e tamanho em GB
-- **Listar** — mostra todos os jogos registados
-- **Consultar** — apresenta os detalhes de um jogo pelo ID
-- **Atualizar** — edita campos individualmente
-- **Remover** — elimina um jogo pelo ID
+| Campo          | Tipo   | Descrição                           |
+|----------------|--------|-------------------------------------|
+| `jid`          | str    | ID gerado automaticamente (J001)    |
+| `nome`         | str    | Nome do jogo                        |
+| `modo`         | str    | `single player`, `multiplayer` ou `ambos` |
+| `idade_minima` | int    | Idade mínima recomendada            |
+| `tamanho_gb`   | float  | Tamanho em gigabytes                |
 
 ---
 
-## 🗂️ Formato dos IDs
+### 🏪 Loja
+Representa um jogo disponível para compra, com preço e stock.
 
-Os IDs são gerados automaticamente e incrementados a cada criação:
+| Campo   | Tipo   | Descrição                        |
+|---------|--------|----------------------------------|
+| `lid`   | str    | ID gerado automaticamente (L001) |
+| `jid`   | str    | Referência ao jogo               |
+| `preco` | float  | Preço em euros (≥ 0)             |
+| `stock` | int    | Unidades disponíveis (≥ 0)       |
 
-| Entidade     | Formato | Exemplo |
-|--------------|---------|---------|
-| Utilizador   | `UXXX`  | `U001`  |
-| Jogo         | `JXXX`  | `J001`  |
+> Cada jogo só pode ter **uma entrada** na loja.
+
+---
+
+### 🛒 Compra
+Representa a transação de um utilizador ao adquirir um jogo da loja.
+
+| Campo        | Tipo   | Descrição                          |
+|--------------|--------|------------------------------------|
+| `cid`        | str    | ID gerado automaticamente (C001)   |
+| `uid`        | str    | Referência ao utilizador           |
+| `lid`        | str    | Referência ao item da loja         |
+| `data_compra`| str    | Data da compra (DD/MM/AAAA)        |
+| `preco_pago` | float  | Preço fixado no momento da compra  |
+
+> O `preco_pago` é registado no momento da compra e **não é alterado** se o preço da loja mudar posteriormente.  
+> Ao remover uma compra, o stock do respetivo item é **devolvido automaticamente**.
 
 ---
 
 ## ✅ Validações
 
-### Utilizador
-| Campo       | Regra                                              |
-|-------------|----------------------------------------------------|
-| Email       | Obrigatório, deve conter `@` e `.` após o `@`     |
-| Nascimento  | Formato `DD/MM/AAAA`, ano entre 1900 e o atual    |
+Todas as validações são feitas nas camadas de CRUD (nunca no `main.py`).
 
-### Jogo
-| Campo         | Regra                                                  |
-|---------------|--------------------------------------------------------|
-| Modo          | Um de: `single player`, `multiplayer`, `ambos`        |
-| Idade mínima  | Número inteiro                                         |
-| Tamanho (GB)  | Número (aceita decimais)                               |
+| Campo        | Regra                                                        |
+|--------------|--------------------------------------------------------------|
+| Email        | Deve conter `@` e um `.` após o `@`                         |
+| Data         | Formato `DD/MM/AAAA`, ano entre 1900 e o ano atual          |
+| Modo de jogo | Um de: `single player`, `multiplayer`, `ambos`              |
+| Preço        | Número decimal, não pode ser negativo                        |
+| Stock        | Número inteiro, não pode ser negativo                        |
+| Idade mínima | Número inteiro                                               |
 
 ---
 
-## 📡 Códigos de Retorno
+## 📡 Códigos de Retorno (estilo HTTP)
 
-Cada função de CRUD retorna um tuplo `(código, dados)` ao estilo HTTP:
+Todas as funções de CRUD retornam um tuplo `(código, dados)`.
 
-| Código | Significado                        |
-|--------|------------------------------------|
-| `200`  | Operação bem-sucedida              |
-| `201`  | Recurso criado com sucesso         |
-| `400`  | Dados inválidos (erro de validação)|
-| `404`  | Recurso não encontrado             |
-| `500`  | Erro interno inesperado            |
+| Código | Significado                              |
+|--------|------------------------------------------|
+| `200`  | Operação realizada com sucesso           |
+| `201`  | Registo criado com sucesso               |
+| `400`  | Erro de validação nos dados fornecidos   |
+| `404`  | Registo não encontrado                   |
+| `500`  | Erro interno inesperado                  |
 
 ---
 
-## 🔧 Detalhes Técnicos
+## 💾 Armazenamento
 
-- **Armazenamento:** dicionários em memória (os dados não persistem entre execuções)
-- **Arquitetura:** separação clara entre lógica de negócio (`utilizadores.py`, `jogos.py`), utilitários (`utils.py`) e interface (`main.py`)
-- **Navegação:** loops nos menus repetem o pedido em caso de erro `400` ou `404`, e saem em caso de erro `500`
-- **Compatibilidade:** o ecrã é limpo com `cls` no Windows e `clear` no Linux/macOS
+Os dados são guardados **em memória** (dicionários Python) durante a execução do programa. Ao terminar, todos os dados são perdidos — não existe persistência em ficheiro ou base de dados.
+
+---
+
+## 🔑 Geração de IDs
+
+Os IDs são gerados automaticamente e sequencialmente, com prefixo por entidade:
+
+| Entidade    | Formato | Exemplo |
+|-------------|---------|---------|
+| Utilizador  | `Unnn`  | `U001`  |
+| Jogo        | `Jnnn`  | `J001`  |
+| Loja        | `Lnnn`  | `L001`  |
+| Compra      | `Cnnn`  | `C001`  |
+
+Os contadores são globais e incrementam a cada criação, independentemente de remoções anteriores.
