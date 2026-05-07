@@ -50,7 +50,7 @@ def criar_item_loja(jid, preco, stock):
             "preco": preco,
             "stock": stock
         }
-        return 201, lid
+        return 201, lojas[lid]
     except Exception as e:
         return 500, str(e)
 
@@ -63,7 +63,7 @@ def listar_loja():
         for lid, dados in lojas.items():
             nome_jogo = jogos[dados["jid"]]["nome"] if dados["jid"] in jogos else "Jogo removido"
             print(f"  ID: {lid} | Jogo: {nome_jogo} | Preco: {dados['preco']:.2f}€ | Stock: {dados['stock']}")
-        return 200, "Loja listada com sucesso."
+        return 200, lojas
     except Exception as e:
         return 500, str(e)
 
@@ -107,7 +107,7 @@ def atualizar_item_loja(lid, preco=None, stock=None):
         if preco is not None: lojas[lid]["preco"] = preco
         if stock is not None: lojas[lid]["stock"] = stock
 
-        return 200, "Item da loja atualizado com sucesso."
+        return 200, lojas[lid]
     except Exception as e:
         return 500, str(e)
 
@@ -119,6 +119,6 @@ def remover_item_loja(lid):
 
     try:
         del lojas[lid]
-        return 200, "Item removido da loja com sucesso."
+        return 200, lojas[lid]
     except Exception as e:
         return 500, str(e)

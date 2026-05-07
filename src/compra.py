@@ -9,7 +9,7 @@
 # ==============================
 from utils import gerar_id_compra, validar_data
 from utilizadores import utilizadores
-from loja import loja
+from loja import lojas
 
 # dicionario principal onde ficam guardadas todas as compras
 # chave: ID gerado automaticamente (ex: C001)
@@ -24,7 +24,7 @@ def criar_compra(uid, lid, data_compra):
         return 404, "Utilizador nao encontrado."
 
     # valida se o item existe na loja
-    if lid not in loja:
+    if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
     # valida a data - formato DD/MM/AAAA
@@ -32,7 +32,7 @@ def criar_compra(uid, lid, data_compra):
         return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
 
     # valida se ha stock disponivel
-    if loja[lid]["stock"] <= 0:
+    if lojas[lid]["stock"] <= 0:
         return 400, "Sem stock disponivel para este jogo."
 
     # valida se o utilizador ja comprou este item
@@ -42,7 +42,7 @@ def criar_compra(uid, lid, data_compra):
 
     try:
         cid = gerar_id_compra()
-        preco_pago = loja[lid]["preco"]     # guarda o preco no momento da compra
+        preco_pago = lojas[lid]["preco"]     # guarda o preco no momento da compra
 
         compras[cid] = {
             "uid": uid,
@@ -52,9 +52,9 @@ def criar_compra(uid, lid, data_compra):
         }
 
         # desconta uma unidade do stock da loja
-        loja[lid]["stock"] -= 1
+        lojas[lid]["stock"] -= 1
 
-        return 201, cid
+        return 201, compras[cid]
     except Exception as e:
         return 500, str(e)
 
@@ -64,11 +64,8 @@ def listar_compras():
         return 404, "Nao existem compras registadas."
 
     try:
-        for cid, dados in compras.items():
-            nome_utilizador = utilizadores[dados["uid"]]["username"] if dados["uid"] in utilizadores else "Utilizador removido"
-            nome_jogo_loja  = loja[dados["lid"]]["jid"]              if dados["lid"] in loja        else "Item removido"
-            print(f"  ID: {cid} | Utilizador: {nome_utilizador} | Item Loja: {dados['lid']} | Data: {dados['data_compra']} | Preco pago: {dados['preco_pago']:.2f}€")
-        return 200, "Compras listadas com sucesso."
+
+        return 200, compras
     except Exception as e:
         return 500, str(e)
 
@@ -80,9 +77,7 @@ def consultar_compra(cid):
 
     try:
         dados = compras[cid]
-        nome_utilizador = utilizadores[dados["uid"]]["username"] if dados["uid"] in utilizadores else "Utilizador removido"
-        resultado = {**dados, "username": nome_utilizador}
-        return 200, resultado
+        return 200, dados
     except Exception as e:
         return 500, str(e)
 
@@ -101,7 +96,7 @@ def atualizar_compra(cid, data_compra=None):
         # nota: uid, lid e preco_pago nao sao editaveis para manter integridade
         if data_compra: compras[cid]["data_compra"] = data_compra
 
-        return 200, "Compra atualizada com sucesso."
+        return 200, data_compra
     except Exception as e:
         return 500, str(e)
 
@@ -114,10 +109,10 @@ def remover_compra(cid):
     try:
         # devolve uma unidade ao stock da loja ao cancelar a compra
         lid = compras[cid]["lid"]
-        if lid in loja:
-            loja[lid]["stock"] += 1
+        if lid in lojas:
+            lojas[lid]["stock"] += 1
 
         del compras[cid]
-        return 200, "Compra removida com sucesso. Stock reposto na loja."
+        return 200, cid
     except Exception as e:
         return 500, str(e)

@@ -89,6 +89,7 @@ def atualizar_jogo(jid, nome=None, modo=None, idade_minima=None, tamanho_gb=None
 
         # valida o tamanho se foi preenchido
         if tamanho_gb:
+
             try:
                 tamanho_gb = float(tamanho_gb)
             except ValueError:

@@ -455,6 +455,8 @@ def main():
                     print()
                     code, obj = listar_compras()
                     if code == 200:
+                        for cid, dados in obj.items():
+                            f"  ID: {cid} | Data: {dados['data_compra']} | Preco pago: {dados['preco_pago']:.2f}€"
                         print(f"  [{code}] {obj}")
                     elif code == 404:
                         print(f"  [{code}] Not Found: {obj}")
