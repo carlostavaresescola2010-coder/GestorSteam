@@ -1,118 +1,137 @@
 # ==============================
-# compras.py
+# compra.py
 # CRUD da entidade Compra
 # representa uma transacao de um utilizador
 # que compra um jogo disponivel na loja
-# armazenamento em dicionario
+# armazenamento em dicionario + persistencia JSON
 # validacoes feitas aqui (nao no main)
 # retorna codigos de estado ao estilo HTTP
 # ==============================
+import json
+import os
 from utils import gerar_id_compra, validar_data
-from utilizadores import utilizadores
-from loja import lojas
+from utilizadores import utilizadores, carregar_utilizadores
+from loja import lojas, carregar_loja, guardar_loja
+
+FICHEIRO_COMPRAS = "compras.json"
 
 # dicionario principal onde ficam guardadas todas as compras
-# chave: ID gerado automaticamente (ex: C001)
-# valor: dicionario com os dados da compra
 compras = {}
+
+# ==========================
+# Persistência
+# ==========================
+def guardar_compras():
+    with open(FICHEIRO_COMPRAS, "w", encoding="utf-8") as ficheiro:
+        json.dump(compras, ficheiro, indent=4, ensure_ascii=False)
+
+def carregar_compras():
+    global compras
+    if os.path.exists(FICHEIRO_COMPRAS):
+        with open(FICHEIRO_COMPRAS, "r", encoding="utf-8") as ficheiro:
+            compras = json.load(ficheiro)
+    else:
+        compras = {}
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_compra(uid, lid, data_compra):
+    carregar_compras()
+    carregar_utilizadores()
+    carregar_loja()
 
-    # valida se o utilizador existe
     if uid not in utilizadores:
         return 404, "Utilizador nao encontrado."
 
-    # valida se o item existe na loja
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
-    # valida a data - formato DD/MM/AAAA
     if not validar_data(data_compra):
         return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
 
-    # valida se ha stock disponivel
     if lojas[lid]["stock"] <= 0:
         return 400, "Sem stock disponivel para este jogo."
 
-    # valida se o utilizador ja comprou este item
     for cid, dados in compras.items():
         if dados["uid"] == uid and dados["lid"] == lid:
             return 400, f"Este utilizador ja comprou este jogo (Compra ID: {cid})."
 
     try:
         cid = gerar_id_compra()
-        preco_pago = lojas[lid]["preco"]     # guarda o preco no momento da compra
+        preco_pago = lojas[lid]["preco"]
 
         compras[cid] = {
             "uid": uid,
             "lid": lid,
             "data_compra": data_compra,
-            "preco_pago": preco_pago        # preco fixado no momento da compra
+            "preco_pago": preco_pago
         }
 
-        # desconta uma unidade do stock da loja
         lojas[lid]["stock"] -= 1
 
-        return 201, compras[cid]
+        guardar_compras()
+        guardar_loja()
+        return 201, cid
     except Exception as e:
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_compras():
+    carregar_compras()
     if not compras:
         return 404, "Nao existem compras registadas."
 
     try:
-
         return 200, compras
     except Exception as e:
         return 500, str(e)
 
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_compra(cid):
-    # retorna 404 se o ID nao existir
+    carregar_compras()
+    carregar_utilizadores()
     if cid not in compras:
         return 404, "Compra nao encontrada."
 
     try:
         dados = compras[cid]
-        return 200, dados
+        uid = dados["uid"]
+        username = utilizadores[uid]["username"] if uid in utilizadores else "Utilizador removido"
+        return 200, {**dados, "username": username}
     except Exception as e:
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_compra(cid, data_compra=None):
-    # retorna 404 se o ID nao existir
+    carregar_compras()
     if cid not in compras:
         return 404, "Compra nao encontrada."
 
     try:
-        # valida a data se foi preenchida
         if data_compra and not validar_data(data_compra):
             return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
 
-        # so atualiza os campos que foram preenchidos (nao None)
-        # nota: uid, lid e preco_pago nao sao editaveis para manter integridade
         if data_compra: compras[cid]["data_compra"] = data_compra
 
+        guardar_compras()
         return 200, data_compra
     except Exception as e:
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_compra(cid):
-    # retorna 404 se o ID nao existir
+    carregar_compras()
+    carregar_loja()
     if cid not in compras:
         return 404, "Compra nao encontrada."
 
     try:
-        # devolve uma unidade ao stock da loja ao cancelar a compra
         lid = compras[cid]["lid"]
         if lid in lojas:
             lojas[lid]["stock"] += 1
+            guardar_loja()
 
         del compras[cid]
+        guardar_compras()
         return 200, cid
     except Exception as e:
         return 500, str(e)
