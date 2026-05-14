@@ -10,7 +10,7 @@
 import json
 import os
 from utils import gerar_id_loja
-from jogos import jogos, carregar_jogos
+from jogos import carregar_jogos
 
 FICHEIRO_LOJA = "loja.json"
 
@@ -31,11 +31,12 @@ def carregar_loja():
             lojas = json.load(ficheiro)
     else:
         lojas = {}
+    return lojas
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_item_loja(jid, preco, stock):
     carregar_loja()
-    carregar_jogos()
+    jogos = carregar_jogos()  # fora do seu ambito - captura o retorno
 
     if jid not in jogos:
         return 404, "Jogo nao encontrado."
@@ -73,7 +74,7 @@ def criar_item_loja(jid, preco, stock):
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_loja():
     carregar_loja()
-    carregar_jogos()
+    jogos = carregar_jogos()  # fora do seu ambito - captura o retorno
     if not lojas:
         return 404, "Nao existem itens na loja."
 

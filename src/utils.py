@@ -39,11 +39,11 @@ def gerar_id_compra():
     contador_compras += 1
     return novo_id
 
-# valida se a data esta no formato DD/MM/AAAA
+# valida se a data esta no formato DD-MM-AAAA
 # e se o ano esta entre 1900 e o ano atual
 def validar_data(data_texto):
     try:
-        data = datetime.strptime(data_texto, "%d/%m/%Y")
+        data = datetime.strptime(data_texto, "%d-%m-%Y")
         ano_atual = datetime.now().year
         if data.year < 1900 or data.year > ano_atual:
             return False

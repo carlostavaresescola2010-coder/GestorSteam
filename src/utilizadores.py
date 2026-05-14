@@ -28,6 +28,7 @@ def carregar_utilizadores():
             utilizadores = json.load(ficheiro)
     else:
         utilizadores = {}
+    return utilizadores
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_utilizador(nome, username, email, password, nascimento):
@@ -37,7 +38,7 @@ def criar_utilizador(nome, username, email, password, nascimento):
         return 400, "Email invalido. O email e obrigatorio e tem de ter formato correto."
 
     if not validar_data(nascimento):
-        return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
+        return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
     try:
         uid = gerar_id_utilizador()
@@ -88,7 +89,7 @@ def atualizar_utilizador(uid, nome=None, username=None, email=None, password=Non
             return 400, "Email invalido."
 
         if nascimento and not validar_data(nascimento):
-            return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
+            return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
         if nome:       utilizadores[uid]["nome"]       = nome
         if username:   utilizadores[uid]["username"]   = username

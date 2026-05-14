@@ -30,6 +30,7 @@ def carregar_jogos():
             jogos = json.load(ficheiro)
     else:
         jogos = {}
+    return jogos
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_jogo(nome, modo, idade_minima, tamanho_gb):

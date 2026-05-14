@@ -129,7 +129,7 @@ def main():
                         username   = input("  Username: ")
                         email      = input("  Email: ")
                         password   = input("  Password: ")
-                        nascimento = input("  Data de nascimento (DD/MM/AAAA): ")
+                        nascimento = input("  Data de nascimento (DD-MM-AAAA): ")
                         print()
                         code, obj = criar_utilizador(nome, username, email, password, nascimento)
                         if code == 201:
@@ -182,7 +182,7 @@ def main():
                         username   = input("  Novo username (enter para manter): ")
                         email      = input("  Novo email (enter para manter): ")
                         password   = input("  Nova password (enter para manter): ")
-                        nascimento = input("  Nova data DD/MM/AAAA (enter para manter): ")
+                        nascimento = input("  Nova data DD-MM-AAAA (enter para manter): ")
                         print()
                         # passa None nos campos que ficaram em branco
                         code, obj = atualizar_utilizador(
@@ -439,7 +439,7 @@ def main():
                     while True:
                         uid         = input("  ID do utilizador: ")
                         lid         = input("  ID do item da loja: ")
-                        data_compra = input("  Data de compra (DD/MM/AAAA): ")
+                        data_compra = input("  Data de compra (DD-MM-AAAA): ")
                         print()
                         code, obj = criar_compra(uid, lid, data_compra)
                         if code == 201:
@@ -486,7 +486,7 @@ def main():
                     # so a data e editavel — uid, lid e preco sao imutaveis
                     while True:
                         cid         = input("  ID da compra: ")
-                        data_compra = input("  Nova data DD/MM/AAAA (enter para manter): ")
+                        data_compra = input("  Nova data DD-MM-AAAA (enter para manter): ")
                         print()
                         code, obj = atualizar_compra(
                             cid,

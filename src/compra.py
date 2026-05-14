@@ -10,8 +10,8 @@
 import json
 import os
 from utils import gerar_id_compra, validar_data
-from utilizadores import utilizadores, carregar_utilizadores
-from loja import lojas, carregar_loja, guardar_loja
+from utilizadores import carregar_utilizadores
+from loja import carregar_loja, guardar_loja
 
 FICHEIRO_COMPRAS = "compras.json"
 
