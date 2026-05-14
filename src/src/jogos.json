@@ -1,0 +1,8 @@
+{
+    "J001": {
+        "nome": "fifa",
+        "modo": "ambos",
+        "idade_minima": 8,
+        "tamanho_gb": 2.5
+    }
+}
