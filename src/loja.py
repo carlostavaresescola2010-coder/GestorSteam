@@ -3,31 +3,48 @@
 # CRUD da entidade Loja
 # representa os jogos disponiveis para compra
 # com preco e stock
-# armazenamento em dicionario
+# armazenamento em dicionario + persistencia JSON
 # validacoes feitas aqui (nao no main)
 # retorna codigos de estado ao estilo HTTP
 # ==============================
+import json
+import os
 from utils import gerar_id_loja
-from jogos import jogos
+from jogos import carregar_jogos
+
+FICHEIRO_LOJA = "loja.json"
 
 # dicionario principal onde ficam guardados todos os itens da loja
-# chave: ID gerado automaticamente (ex: L001)
-# valor: dicionario com os dados do item
 lojas = {}
+
+# ==========================
+# Persistência
+# ==========================
+def guardar_loja():
+    with open(FICHEIRO_LOJA, "w", encoding="utf-8") as ficheiro:
+        json.dump(lojas, ficheiro, indent=4, ensure_ascii=False)
+
+def carregar_loja():
+    global lojas
+    if os.path.exists(FICHEIRO_LOJA):
+        with open(FICHEIRO_LOJA, "r", encoding="utf-8") as ficheiro:
+            lojas = json.load(ficheiro)
+    else:
+        lojas = {}
+    return lojas
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_item_loja(jid, preco, stock):
+    carregar_loja()
+    jogos = carregar_jogos()  # fora do seu ambito - captura o retorno
 
-    # valida se o jogo existe
     if jid not in jogos:
         return 404, "Jogo nao encontrado."
 
-    # valida se o jogo ja esta na loja
     for lid, dados in lojas.items():
         if dados["jid"] == jid:
             return 400, f"Este jogo ja esta na loja com o ID {lid}."
 
-    # valida o preco - tem de ser um numero positivo
     try:
         preco = float(preco)
         if preco < 0:
@@ -35,7 +52,6 @@ def criar_item_loja(jid, preco, stock):
     except ValueError:
         return 400, "Preco invalido. Introduz um numero."
 
-    # valida o stock - tem de ser um numero inteiro nao negativo
     try:
         stock = int(stock)
         if stock < 0:
@@ -50,12 +66,15 @@ def criar_item_loja(jid, preco, stock):
             "preco": preco,
             "stock": stock
         }
-        return 201, lojas[lid]
+        guardar_loja()
+        return 201, lid
     except Exception as e:
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_loja():
+    carregar_loja()
+    jogos = carregar_jogos()  # fora do seu ambito - captura o retorno
     if not lojas:
         return 404, "Nao existem itens na loja."
 
@@ -69,7 +88,7 @@ def listar_loja():
 
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_item_loja(lid):
-    # retorna 404 se o ID nao existir
+    carregar_loja()
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
@@ -80,12 +99,11 @@ def consultar_item_loja(lid):
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_item_loja(lid, preco=None, stock=None):
-    # retorna 404 se o ID nao existir
+    carregar_loja()
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
     try:
-        # valida o preco se foi preenchido
         if preco is not None:
             try:
                 preco = float(preco)
@@ -94,7 +112,6 @@ def atualizar_item_loja(lid, preco=None, stock=None):
             except ValueError:
                 return 400, "Preco invalido. Introduz um numero."
 
-        # valida o stock se foi preenchido
         if stock is not None:
             try:
                 stock = int(stock)
@@ -103,22 +120,23 @@ def atualizar_item_loja(lid, preco=None, stock=None):
             except ValueError:
                 return 400, "Stock invalido. Introduz um numero inteiro."
 
-        # so atualiza os campos que foram preenchidos (nao None)
         if preco is not None: lojas[lid]["preco"] = preco
         if stock is not None: lojas[lid]["stock"] = stock
 
+        guardar_loja()
         return 200, lojas[lid]
     except Exception as e:
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_item_loja(lid):
-    # retorna 404 se o ID nao existir
+    carregar_loja()
     if lid not in lojas:
         return 404, "Item nao encontrado na loja."
 
     try:
         del lojas[lid]
+        guardar_loja()
         return 200, lid
     except Exception as e:
         return 500, str(e)
