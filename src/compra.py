@@ -32,12 +32,13 @@ def carregar_compras():
             compras = json.load(ficheiro)
     else:
         compras = {}
+    return compras
 
 # ── CREATE ─────────────────────────────────────────────────────────────────────
 def criar_compra(uid, lid, data_compra):
     carregar_compras()
-    carregar_utilizadores()
-    carregar_loja()
+    utilizadores = carregar_utilizadores()  # fora do seu ambito - captura o retorno
+    lojas = carregar_loja()                 # fora do seu ambito - captura o retorno
 
     if uid not in utilizadores:
         return 404, "Utilizador nao encontrado."
@@ -46,7 +47,7 @@ def criar_compra(uid, lid, data_compra):
         return 404, "Item nao encontrado na loja."
 
     if not validar_data(data_compra):
-        return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
+        return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
     if lojas[lid]["stock"] <= 0:
         return 400, "Sem stock disponivel para este jogo."
@@ -88,7 +89,7 @@ def listar_compras():
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_compra(cid):
     carregar_compras()
-    carregar_utilizadores()
+    utilizadores = carregar_utilizadores()  # fora do seu ambito - captura o retorno
     if cid not in compras:
         return 404, "Compra nao encontrada."
 
@@ -108,7 +109,7 @@ def atualizar_compra(cid, data_compra=None):
 
     try:
         if data_compra and not validar_data(data_compra):
-            return 400, "Data invalida. Use DD/MM/AAAA e um ano entre 1900 e o ano atual."
+            return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
         if data_compra: compras[cid]["data_compra"] = data_compra
 
@@ -120,7 +121,7 @@ def atualizar_compra(cid, data_compra=None):
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_compra(cid):
     carregar_compras()
-    carregar_loja()
+    lojas = carregar_loja()  # fora do seu ambito - captura o retorno
     if cid not in compras:
         return 404, "Compra nao encontrada."
 
