@@ -9,12 +9,11 @@
 # ==============================
 import json
 import os
-import logging
-from utils import gerar_id_compra, validar_data
+from utils import gerar_id_compra, validar_data, get_logger
 from utilizadores import carregar_utilizadores
 from loja import carregar_loja, guardar_loja
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 FICHEIRO_COMPRAS = "compras.json"
 
@@ -46,24 +45,24 @@ def criar_compra(uid, lid, data_compra):
     lojas = carregar_loja()
 
     if uid not in utilizadores:
-        logger.warning(f"Tentativa de compra com utilizador inexistente: {uid}")
+        logger.error(f"Tentativa de compra com utilizador inexistente: {uid}")
         return 404, "Utilizador nao encontrado."
 
     if lid not in lojas:
-        logger.warning(f"Tentativa de compra com item de loja inexistente: {lid}")
+        logger.error(f"Tentativa de compra com item de loja inexistente: {lid}")
         return 404, "Item nao encontrado na loja."
 
     if not validar_data(data_compra):
-        logger.warning(f"Data invalida fornecida: {data_compra}")
+        logger.error(f"Data invalida fornecida: {data_compra}")
         return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
     if lojas[lid]["stock"] <= 0:
-        logger.warning(f"Stock esgotado para item {lid}")
+        logger.error(f"Stock esgotado para item {lid}")
         return 400, "Sem stock disponivel para este jogo."
 
     for cid, dados in compras.items():
         if dados["uid"] == uid and dados["lid"] == lid:
-            logger.warning(f"Utilizador {uid} ja comprou o jogo {lid} (compra {cid})")
+            logger.error(f"Utilizador {uid} ja comprou o jogo {lid} (compra {cid})")
             return 400, f"Este utilizador ja comprou este jogo (Compra ID: {cid})."
 
     try:
@@ -84,21 +83,21 @@ def criar_compra(uid, lid, data_compra):
         logger.info(f"Compra criada: {cid} (utilizador {uid}, jogo {lid}, preco {preco_pago})")
         return 201, cid
     except Exception as e:
-        logger.error(f"Erro ao criar compra: {str(e)}")
+        logger.exception(f"Erro ao criar compra: {str(e)}")
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_compras():
     carregar_compras()
     if not compras:
-        logger.info("Listagem de compras: nenhuma compra registada")
+        logger.error("Listagem de compras: nenhuma compra registada")
         return 404, "Nao existem compras registadas."
 
     try:
         logger.info(f"Listagem de compras: {len(compras)} compras retornadas")
         return 200, compras
     except Exception as e:
-        logger.error(f"Erro ao listar compras: {str(e)}")
+        logger.execption(f"Erro ao listar compras: {str(e)}")
         return 500, str(e)
 
 # ── READ - consultar individual ────────────────────────────────────────────────
@@ -106,7 +105,7 @@ def consultar_compra(cid):
     carregar_compras()
     utilizadores = carregar_utilizadores()
     if cid not in compras:
-        logger.warning(f"Compra nao encontrada: {cid}")
+        logger.error(f"Compra nao encontrada: {cid}")
         return 404, "Compra nao encontrada."
 
     try:
@@ -116,19 +115,19 @@ def consultar_compra(cid):
         logger.info(f"Consulta da compra {cid} (utilizador {username})")
         return 200, {**dados, "username": username}
     except Exception as e:
-        logger.error(f"Erro ao consultar compra {cid}: {str(e)}")
+        logger.exception(f"Erro ao consultar compra {cid}: {str(e)}")
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_compra(cid, data_compra=None):
     carregar_compras()
     if cid not in compras:
-        logger.warning(f"Tentativa de atualizar compra inexistente: {cid}")
+        logger.error(f"Tentativa de atualizar compra inexistente: {cid}")
         return 404, "Compra nao encontrada."
 
     try:
         if data_compra and not validar_data(data_compra):
-            logger.warning(f"Data invalida fornecida para atualizacao da compra {cid}: {data_compra}")
+            logger.error(f"Data invalida fornecida para atualizacao da compra {cid}: {data_compra}")
             return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
         if data_compra:
@@ -138,7 +137,7 @@ def atualizar_compra(cid, data_compra=None):
         guardar_compras()
         return 200, data_compra
     except Exception as e:
-        logger.error(f"Erro ao atualizar compra {cid}: {str(e)}")
+        logger.exeption(f"Erro ao atualizar compra {cid}: {str(e)}")
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
@@ -146,7 +145,7 @@ def remover_compra(cid):
     carregar_compras()
     lojas = carregar_loja()
     if cid not in compras:
-        logger.warning(f"Tentativa de remover compra inexistente: {cid}")
+        logger.errror(f"Tentativa de remover compra inexistente: {cid}")
         return 404, "Compra nao encontrada."
 
     try:
@@ -161,5 +160,5 @@ def remover_compra(cid):
         logger.info(f"Compra {cid} removida permanentemente")
         return 200, cid
     except Exception as e:
-        logger.error(f"Erro ao remover compra {cid}: {str(e)}")
+        logger.exeption(f"Erro ao remover compra {cid}: {str(e)}")
         return 500, str(e)

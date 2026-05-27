@@ -8,16 +8,21 @@ from datetime import datetime
 
 # Configuração do logging (centralizada aqui)
 logging.basicConfig(
+    filename='app.log',
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+
+handler = logging.FileHandler('app.log')
 
 # contadores globais para gerar IDs unicos automaticamente
 contador_utilizadores = 1
 contador_jogos        = 1
 contador_loja         = 1
 contador_compras      = 1
+
+def get_logger(nome):
+    return logging.getLogger(nome)
 
 # gera um ID para utilizador no formato U001, U002, ...
 def gerar_id_utilizador():

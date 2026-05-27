@@ -40,11 +40,11 @@ def criar_utilizador(nome, username, email, password, nascimento):
     carregar_utilizadores()
 
     if not validar_email(email):
-        logger.warning(f"Email invalido fornecido: {email}")
+        logger.error(f"Email invalido fornecido: {email}")
         return 400, "Email invalido. O email e obrigatorio e tem de ter formato correto."
 
     if not validar_data(nascimento):
-        logger.warning(f"Data de nascimento invalida: {nascimento}")
+        logger.error(f"Data de nascimento invalida: {nascimento}")
         return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
     try:
@@ -62,51 +62,51 @@ def criar_utilizador(nome, username, email, password, nascimento):
         logger.info(f"Utilizador criado: {uid} - {username} ({email})")
         return 201, utilizador
     except Exception as e:
-        logger.error(f"Erro ao criar utilizador: {str(e)}")
+        logger.exception(f"Erro ao criar utilizador: {str(e)}")
         return 500, str(e)
 
 # ── READ - listar todos ────────────────────────────────────────────────────────
 def listar_utilizadores():
     carregar_utilizadores()
     if not utilizadores:
-        logger.info("Listagem de utilizadores: nenhum utilizador registado")
+        logger.error("Listagem de utilizadores: nenhum utilizador registado")
         return 404, "Nao existem utilizadores registados."
 
     try:
         logger.info(f"Listagem de utilizadores: {len(utilizadores)} utilizadores retornados")
         return 200, utilizadores
     except Exception as e:
-        logger.error(f"Erro ao listar utilizadores: {str(e)}")
+        logger.exception(f"Erro ao listar utilizadores: {str(e)}")
         return 500, str(e)
 
 # ── READ - consultar individual ────────────────────────────────────────────────
 def consultar_utilizador(uid):
     carregar_utilizadores()
     if uid not in utilizadores:
-        logger.warning(f"Utilizador nao encontrado: {uid}")
+        logger.error(f"Utilizador nao encontrado: {uid}")
         return 404, "Utilizador nao encontrado."
 
     try:
         logger.info(f"Consulta do utilizador {uid}")
         return 200, utilizadores[uid]
     except Exception as e:
-        logger.error(f"Erro ao consultar utilizador {uid}: {str(e)}")
+        logger.exception(f"Erro ao consultar utilizador {uid}: {str(e)}")
         return 500, str(e)
 
 # ── UPDATE ─────────────────────────────────────────────────────────────────────
 def atualizar_utilizador(uid, nome=None, username=None, email=None, password=None, nascimento=None):
     carregar_utilizadores()
     if uid not in utilizadores:
-        logger.warning(f"Tentativa de atualizar utilizador inexistente: {uid}")
+        logger.error(f"Tentativa de atualizar utilizador inexistente: {uid}")
         return 404, "Utilizador nao encontrado."
 
     try:
         if email and not validar_email(email):
-            logger.warning(f"Email invalido para atualizacao do utilizador {uid}: {email}")
+            logger.error(f"Email invalido para atualizacao do utilizador {uid}: {email}")
             return 400, "Email invalido."
 
         if nascimento and not validar_data(nascimento):
-            logger.warning(f"Data invalida para atualizacao do utilizador {uid}: {nascimento}")
+            logger.error(f"Data invalida para atualizacao do utilizador {uid}: {nascimento}")
             return 400, "Data invalida. Use DD-MM-AAAA e um ano entre 1900 e o ano atual."
 
         if nome:       utilizadores[uid]["nome"]       = nome
@@ -119,14 +119,14 @@ def atualizar_utilizador(uid, nome=None, username=None, email=None, password=Non
         logger.info(f"Utilizador {uid} atualizado: {utilizadores[uid]}")
         return 200, utilizadores[uid]
     except Exception as e:
-        logger.error(f"Erro ao atualizar utilizador {uid}: {str(e)}")
+        logger.exception(f"Erro ao atualizar utilizador {uid}: {str(e)}")
         return 500, str(e)
 
 # ── DELETE ─────────────────────────────────────────────────────────────────────
 def remover_utilizador(uid):
     carregar_utilizadores()
     if uid not in utilizadores:
-        logger.warning(f"Tentativa de remover utilizador inexistente: {uid}")
+        logger.error(f"Tentativa de remover utilizador inexistente: {uid}")
         return 404, "Utilizador nao encontrado."
 
     try:
@@ -135,5 +135,5 @@ def remover_utilizador(uid):
         logger.info(f"Utilizador {uid} removido permanentemente")
         return 200, uid
     except Exception as e:
-        logger.error(f"Erro ao remover utilizador {uid}: {str(e)}")
+        logger.exception(f"Erro ao remover utilizador {uid}: {str(e)}")
         return 500, str(e)
