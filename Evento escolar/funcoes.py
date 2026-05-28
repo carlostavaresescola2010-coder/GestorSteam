@@ -17,7 +17,9 @@ def contar_por_atividade(atividade, participantes):
     return sum(1 for p in participantes if p[2] == atividade)
 
 
+
 #git funcionando!!
+
 
 # --------------------------
 # LIMPAR CAMPOS DO FORMULÁRIO
