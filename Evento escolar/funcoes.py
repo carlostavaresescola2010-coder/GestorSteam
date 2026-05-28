@@ -36,9 +36,7 @@ def limpar_campos(ent_nome, ent_email, tk, combo):
 
 
 
-#git_teste
-
-
+#funcionando prof!
 # --------------------------
 # LISTA, TUPLOS, FILTRO
 # --------------------------
