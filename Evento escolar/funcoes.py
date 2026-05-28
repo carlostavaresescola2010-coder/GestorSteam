@@ -34,6 +34,7 @@ def limpar_campos(ent_nome, ent_email, tk, combo):
     # SET do Combobox: retorna para valor padrão
     combo.set("Selecione...")
 
+#yo lo sou gay
 
 
 #funcionando prof!
