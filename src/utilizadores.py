@@ -17,6 +17,7 @@ FICHEIRO_UTILIZADORES = "utilizadores.json"
 # dicionario principal onde ficam guardados todos os utilizadores
 utilizadores = {}
 
+
 # ==========================
 # Persistência
 # ==========================
